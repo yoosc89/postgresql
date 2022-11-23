@@ -30,8 +30,19 @@ class PostgerSQL:
         feedback = (query, data)
         return feedback
 
-    def UpdateDB(self, table: str, data: list = [], columns: list = []) -> list:
-        return
+    def UpdateDB(self, table: str, pk: dict, columns: list, data: list = []) -> list:
+        pk_key = None
+
+        for key, value in pk.items():
+            pk_key = key
+            data.append(value)
+
+        columns = ','.join([f'{col}=%s' for col in columns])
+
+        query = f'update {table} set {columns} where {pk_key}=%s'
+        self.cur.execute(query, data)
+        feedback = (query, data)
+        return feedback
 
     def commit(self) -> None:
         self.conn.commit()
@@ -47,7 +58,13 @@ if __name__ == '__main__':
     # select = sql.ReadDB(table='test',
     #                    order_by='id asc', limit=200,)
     columns = ['text', 'create_data', 'name', 'user_id', 'text1']  # 테스트용
-    data = ['dfdf', datetime.now(), 'name', 15, 'dfdfdf']  # 테스트용
-    sql.CreateDB(table='test', columns=columns, data=data)
+    data = ['d1212fdf', datetime.now(), 'nam1112e', 15, 'dddddddd']  # 테스트용
+
+    #sql.CreateDB(table='test', columns=columns, data=data)
+
+    pk = {'id': 11196}
+
+    sql.UpdateDB(table='test', pk=pk,
+                 columns=columns, data=data)
 
     sql.commit()
