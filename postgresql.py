@@ -1,9 +1,4 @@
-import pandas as pd
-import os
-import sys
 import psycopg2
-from datetime import datetime
-import json
 
 
 class PostgerSQL:
@@ -44,27 +39,19 @@ class PostgerSQL:
         feedback = (query, data)
         return feedback
 
+    def DeleteDB(self, table: str, pk: dict) -> list:
+        pk_key, pk_value = None, None
+        for key, value in pk:
+            pk_key = key
+            pk_value = value
+        query = f'delete {table} where {pk_key} = %s'
+        self.cur.execute(query, [pk_value])
+        return [query, pk_value]
+
+    def Columns_Search(self, table: str) -> tuple:
+        query = f'SELECT column_name from information_schema.columns WHERE table_name = %s'
+        self.cur.execute(query, [table])
+        return self.cur.fetchall()
+
     def commit(self) -> None:
         self.conn.commit()
-
-
-if __name__ == '__main__':
-    account = None
-    with open('postgres_host_info.json', 'r') as json_data:
-        account = json.load(json_data)
-
-    sql = PostgerSQL(host=account['host'], user=account['user'],
-                     password=account['password'], dbname=account['dbname'], port=account['port'])
-    # select = sql.ReadDB(table='test',
-    #                    order_by='id asc', limit=200,)
-    columns = ['text', 'create_data', 'name', 'user_id', 'text1']  # 테스트용
-    data = ['d1212fdf', datetime.now(), 'nam1112e', 15, 'dddddddd']  # 테스트용
-
-    #sql.CreateDB(table='test', columns=columns, data=data)
-
-    pk = {'id': 11196}
-
-    sql.UpdateDB(table='test', pk=pk,
-                 columns=columns, data=data)
-
-    sql.commit()
