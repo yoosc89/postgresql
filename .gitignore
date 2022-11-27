@@ -2,3 +2,4 @@ postgres_host_info.json
 excel.py
 .gitignore
 __pycache__/
+pyvenv.cfg
